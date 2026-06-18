@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCart } from '../components/CartProvider';
 import Guide from '../components/Guide';
 import Header from '../components/Header';
@@ -26,7 +26,34 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const { qty, addCart } = useCart();
   const [detail, setDetail] = useState(null);
+  const snapRef = useRef(null);
+  const wheelLock = useRef(false);
   const t = text[lang];
+
+  useEffect(() => {
+    const container = snapRef.current;
+    if (!container) return undefined;
+
+    const moveToSection = (direction) => {
+      const sections = [...container.querySelectorAll('.snapSection')];
+      const current = Math.round(container.scrollTop / container.clientHeight);
+      const next = Math.max(0, Math.min(sections.length - 1, current + direction));
+      sections[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    const onWheel = (event) => {
+      if (window.innerWidth <= 900) return;
+      if (Math.abs(event.deltaY) < 12) return;
+      event.preventDefault();
+      if (wheelLock.current) return;
+      wheelLock.current = true;
+      moveToSection(event.deltaY > 0 ? 1 : -1);
+      window.setTimeout(() => { wheelLock.current = false; }, 760);
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => container.removeEventListener('wheel', onWheel);
+  }, []);
 
   const cats = useMemo(() => ['all', ...new Set(products.map((p) => p.cat))], []);
   const list = products.filter((p) =>
@@ -52,7 +79,7 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Header qty={qty} onCategoryChange={setCategory} onLanguageChange={setLang} />
 
-      <div className="snapContainer">
+      <div className="snapContainer" ref={snapRef}>
         <section id="top" className="hero snapSection">
           <div>
             <h1>tof.aaaaa</h1>
