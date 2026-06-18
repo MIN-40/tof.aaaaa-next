@@ -43,14 +43,26 @@ export default function Home() {
       setCurrentSection(next);
     };
 
+    const canScrollInside = (element, direction) => {
+      if (!element) return false;
+      const scrollable = element.closest('.products');
+      if (!scrollable) return false;
+      const hasOverflow = scrollable.scrollHeight > scrollable.clientHeight + 2;
+      if (!hasOverflow) return false;
+      if (direction > 0) return scrollable.scrollTop + scrollable.clientHeight < scrollable.scrollHeight - 2;
+      return scrollable.scrollTop > 2;
+    };
+
     const onWheel = (event) => {
       if (window.innerWidth <= 900 || detail) return;
       if (Math.abs(event.deltaY) < 6) return;
+      const direction = event.deltaY > 0 ? 1 : -1;
+      if (currentSectionRef.current === 1 && canScrollInside(event.target, direction)) return;
       event.preventDefault();
       event.stopPropagation();
       if (wheelLock.current) return;
       wheelLock.current = true;
-      goToSection(currentSectionRef.current + (event.deltaY > 0 ? 1 : -1));
+      goToSection(currentSectionRef.current + direction);
       window.setTimeout(() => { wheelLock.current = false; }, 820);
     };
 
