@@ -29,6 +29,7 @@ export default function Home() {
   const [currentSection, setCurrentSection] = useState(0);
   const currentSectionRef = useRef(0);
   const wheelLock = useRef(false);
+  const edgeScrollRef = useRef({ key: '', time: 0 });
   const sectionCount = 3;
   const t = text[lang];
 
@@ -59,11 +60,29 @@ export default function Home() {
       if (window.innerWidth <= 900 || detail) return;
       if (Math.abs(event.deltaY) < 6) return;
       const direction = event.deltaY > 0 ? 1 : -1;
-      if (currentSectionRef.current === 1 && canScrollInside(event.target, direction)) return;
+      if (currentSectionRef.current === 1) {
+        const scrollable = event.target?.closest?.('.products');
+        if (canScrollInside(event.target, direction)) {
+          edgeScrollRef.current = { key: '', time: 0 };
+          return;
+        }
+        if (scrollable) {
+          const edgeKey = `shop-${direction}`;
+          const now = Date.now();
+          const isSecondEdgeScroll = edgeScrollRef.current.key === edgeKey && now - edgeScrollRef.current.time < 1400;
+          edgeScrollRef.current = { key: edgeKey, time: now };
+          if (!isSecondEdgeScroll) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+        }
+      }
       event.preventDefault();
       event.stopPropagation();
       if (wheelLock.current) return;
       wheelLock.current = true;
+      edgeScrollRef.current = { key: '', time: 0 };
       goToSection(currentSectionRef.current + direction);
       window.setTimeout(() => { wheelLock.current = false; }, 820);
     };
