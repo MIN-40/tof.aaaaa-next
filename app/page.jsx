@@ -28,43 +28,21 @@ export default function Home() {
   const [detail, setDetail] = useState(null);
   const [currentSection, setCurrentSection] = useState(0);
   const currentSectionRef = useRef(0);
-  const wheelLock = useRef(false);
+  const sectionCount = 4;
   const t = text[lang];
 
   useEffect(() => {
     currentSectionRef.current = currentSection;
   }, [currentSection]);
 
+  const goToSection = (index) => {
+    const next = Math.max(0, Math.min(sectionCount - 1, index));
+    currentSectionRef.current = next;
+    setCurrentSection(next);
+  };
+
   useEffect(() => {
     const sectionIds = ['top', 'shop', 'guide', 'footer'];
-    const goToSection = (index) => {
-      const next = Math.max(0, Math.min(sectionIds.length - 1, index));
-      currentSectionRef.current = next;
-      setCurrentSection(next);
-    };
-
-    const canScrollInside = (element, direction) => {
-      if (!element) return false;
-      const scrollable = element.closest('.products');
-      if (!scrollable) return false;
-      const hasOverflow = scrollable.scrollHeight > scrollable.clientHeight + 2;
-      if (!hasOverflow) return false;
-      if (direction > 0) return scrollable.scrollTop + scrollable.clientHeight < scrollable.scrollHeight - 2;
-      return scrollable.scrollTop > 2;
-    };
-
-    const onWheel = (event) => {
-      if (window.innerWidth <= 900 || detail) return;
-      if (Math.abs(event.deltaY) < 6) return;
-      const direction = event.deltaY > 0 ? 1 : -1;
-      if (currentSectionRef.current === 1 && canScrollInside(event.target, direction)) return;
-      event.preventDefault();
-      event.stopPropagation();
-      if (wheelLock.current) return;
-      wheelLock.current = true;
-      goToSection(currentSectionRef.current + direction);
-      window.setTimeout(() => { wheelLock.current = false; }, 820);
-    };
 
     const onKeyDown = (event) => {
       if (window.innerWidth <= 900 || detail) return;
@@ -80,11 +58,9 @@ export default function Home() {
     };
 
     onHashChange();
-    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('hashchange', onHashChange);
     return () => {
-      window.removeEventListener('wheel', onWheel, { capture: true });
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('hashchange', onHashChange);
     };
@@ -113,6 +89,12 @@ export default function Home() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Header qty={qty} onCategoryChange={setCategory} onLanguageChange={setLang} />
+
+      <div className="sectionControls" aria-label="Page navigation">
+        <button type="button" onClick={() => goToSection(currentSection - 1)} disabled={currentSection === 0}>UP</button>
+        <span>{currentSection + 1}/{sectionCount}</span>
+        <button type="button" onClick={() => goToSection(currentSection + 1)} disabled={currentSection === sectionCount - 1}>DOWN</button>
+      </div>
 
       <div className="snapContainer">
         <div className="fullpageTrack" style={{ transform: `translate3d(0, calc(-${currentSection} * (100vh - 105px)), 0)` }}>
