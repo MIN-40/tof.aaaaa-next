@@ -73,7 +73,7 @@ export default function Home() {
           const isSameEdge = previous.key === edgeKey && now - previous.time < 1800;
           const nextCount = isSameEdge ? previous.count + 1 : 1;
           const nextTotal = isSameEdge ? previous.total + Math.abs(event.deltaY) : Math.abs(event.deltaY);
-          const canLeaveProductPage = nextCount >= 3 || nextTotal >= 260;
+          const canLeaveProductPage = nextCount >= 4 || nextTotal >= 320;
           edgeScrollRef.current = { key: edgeKey, time: now, count: nextCount, total: nextTotal };
           if (!canLeaveProductPage) {
             event.preventDefault();
