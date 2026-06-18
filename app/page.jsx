@@ -27,6 +27,7 @@ export default function Home() {
   const { qty, addCart } = useCart();
   const [detail, setDetail] = useState(null);
   const snapRef = useRef(null);
+  const activeSection = useRef(0);
   const wheelLock = useRef(false);
   const t = text[lang];
 
@@ -34,26 +35,49 @@ export default function Home() {
     const container = snapRef.current;
     if (!container) return undefined;
 
-    const moveToSection = (direction) => {
-      const sections = [...container.querySelectorAll('.snapSection')];
-      const current = Math.round(container.scrollTop / container.clientHeight);
-      const next = Math.max(0, Math.min(sections.length - 1, current + direction));
-      sections[next]?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const getSections = () => [...container.querySelectorAll('.snapSection')];
+
+    const goToSection = (index) => {
+      const sections = getSections();
+      const next = Math.max(0, Math.min(sections.length - 1, index));
+      activeSection.current = next;
+      container.scrollTo({ top: next * container.clientHeight, behavior: 'smooth' });
     };
 
     const onWheel = (event) => {
-      if (window.innerWidth <= 900) return;
-      if (Math.abs(event.deltaY) < 12) return;
+      if (window.innerWidth <= 900 || detail) return;
+      if (Math.abs(event.deltaY) < 8) return;
       event.preventDefault();
+      event.stopPropagation();
       if (wheelLock.current) return;
       wheelLock.current = true;
-      moveToSection(event.deltaY > 0 ? 1 : -1);
-      window.setTimeout(() => { wheelLock.current = false; }, 760);
+      goToSection(activeSection.current + (event.deltaY > 0 ? 1 : -1));
+      window.setTimeout(() => { wheelLock.current = false; }, 900);
     };
 
-    container.addEventListener('wheel', onWheel, { passive: false });
-    return () => container.removeEventListener('wheel', onWheel);
-  }, []);
+    const onKeyDown = (event) => {
+      if (window.innerWidth <= 900 || detail) return;
+      if (!['ArrowDown', 'PageDown', 'Space', 'ArrowUp', 'PageUp'].includes(event.code)) return;
+      event.preventDefault();
+      const direction = ['ArrowUp', 'PageUp'].includes(event.code) ? -1 : 1;
+      goToSection(activeSection.current + direction);
+    };
+
+    const onHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      const target = getSections().findIndex((section) => section.id === hash);
+      if (target >= 0) goToSection(target);
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('hashchange', onHashChange);
+    return () => {
+      window.removeEventListener('wheel', onWheel, { capture: true });
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('hashchange', onHashChange);
+    };
+  }, [detail]);
 
   const cats = useMemo(() => ['all', ...new Set(products.map((p) => p.cat))], []);
   const list = products.filter((p) =>
