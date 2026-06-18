@@ -29,7 +29,7 @@ export default function Home() {
   const [currentSection, setCurrentSection] = useState(0);
   const currentSectionRef = useRef(0);
   const wheelLock = useRef(false);
-  const sectionCount = 4;
+  const sectionCount = 3;
   const t = text[lang];
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const sectionIds = ['top', 'shop', 'guide', 'footer'];
+    const sectionIds = ['top', 'shop', 'guide'];
 
     const canScrollInside = (element, direction) => {
       if (!element) return false;
@@ -148,7 +148,6 @@ export default function Home() {
           </main>
 
           <Guide text={t.guide} />
-          <footer id="footer" className="snapSection">© 2026 tof.aaaaa. all rights reserved.</footer>
         </div>
       </div>
 

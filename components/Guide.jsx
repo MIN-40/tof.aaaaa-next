@@ -9,6 +9,7 @@ export default function Guide({ text }) {
         <div><h3>Shipping</h3><p>기본 배송비 3,000원, 5만원 이상 무료배송.</p></div>
         <div><h3>Exchange / Refund</h3><p>수령 후 7일 이내 문의 가능, 착용/훼손 시 불가.</p></div>
       </div>
+      <p className="guideFooter">© 2026 tof.aaaaa. all rights reserved.</p>
     </section>
   );
 }
