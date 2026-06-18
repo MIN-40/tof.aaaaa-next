@@ -29,7 +29,7 @@ export default function Home() {
   const [currentSection, setCurrentSection] = useState(0);
   const currentSectionRef = useRef(0);
   const wheelLock = useRef(false);
-  const edgeScrollRef = useRef({ key: '', time: 0 });
+  const edgeScrollRef = useRef({ key: '', time: 0, count: 0, total: 0 });
   const sectionCount = 3;
   const t = text[lang];
 
@@ -63,15 +63,19 @@ export default function Home() {
       if (currentSectionRef.current === 1) {
         const scrollable = event.target?.closest?.('.products');
         if (canScrollInside(event.target, direction)) {
-          edgeScrollRef.current = { key: '', time: 0 };
+          edgeScrollRef.current = { key: '', time: 0, count: 0, total: 0 };
           return;
         }
         if (scrollable) {
           const edgeKey = `shop-${direction}`;
           const now = Date.now();
-          const isSecondEdgeScroll = edgeScrollRef.current.key === edgeKey && now - edgeScrollRef.current.time < 1400;
-          edgeScrollRef.current = { key: edgeKey, time: now };
-          if (!isSecondEdgeScroll) {
+          const previous = edgeScrollRef.current;
+          const isSameEdge = previous.key === edgeKey && now - previous.time < 1800;
+          const nextCount = isSameEdge ? previous.count + 1 : 1;
+          const nextTotal = isSameEdge ? previous.total + Math.abs(event.deltaY) : Math.abs(event.deltaY);
+          const canLeaveProductPage = nextCount >= 3 || nextTotal >= 260;
+          edgeScrollRef.current = { key: edgeKey, time: now, count: nextCount, total: nextTotal };
+          if (!canLeaveProductPage) {
             event.preventDefault();
             event.stopPropagation();
             return;
@@ -82,7 +86,7 @@ export default function Home() {
       event.stopPropagation();
       if (wheelLock.current) return;
       wheelLock.current = true;
-      edgeScrollRef.current = { key: '', time: 0 };
+      edgeScrollRef.current = { key: '', time: 0, count: 0, total: 0 };
       goToSection(currentSectionRef.current + direction);
       window.setTimeout(() => { wheelLock.current = false; }, 820);
     };
