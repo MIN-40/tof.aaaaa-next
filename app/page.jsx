@@ -52,29 +52,35 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Header qty={qty} onCategoryChange={setCategory} onLanguageChange={setLang} />
 
-      <section className="hero"><h1>tof.aaaaa</h1><p>{t.hero}</p></section>
-      <div className="ticker"><div>NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA · NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA ·</div></div>
-
-      <main className="wrap shop">
-        <aside className="side">
-          <h3>Category</h3>
-          {cats.map((cat) => <button className={category === cat ? 'active' : ''} key={cat} onClick={() => setCategory(cat)}>{cat}</button>)}
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" />
-        </aside>
-        <section className="products">
-          <h2>{category === 'all' ? 'Accessories' : category}</h2>
-          <p>{list.length} products</p>
-          <div className="grid">
-            {list.map((product) => <ProductCard key={product.name} product={product} onAddCart={addCart} onOpenDetail={setDetail} />)}
+      <div className="snapContainer">
+        <section id="top" className="hero snapSection">
+          <div>
+            <h1>tof.aaaaa</h1>
+            <p>{t.hero}</p>
           </div>
+          <div className="ticker"><div>NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA · NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA ·</div></div>
         </section>
-      </main>
 
-      <Guide text={t.guide} />
+        <main id="shop" className="wrap shop snapSection">
+          <aside className="side">
+            <h3>Category</h3>
+            {cats.map((cat) => <button className={category === cat ? 'active' : ''} key={cat} onClick={() => setCategory(cat)}>{cat}</button>)}
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" />
+          </aside>
+          <section className="products">
+            <h2>{category === 'all' ? 'Accessories' : category}</h2>
+            <p>{list.length} products</p>
+            <div className="grid">
+              {list.map((product) => <ProductCard key={product.name} product={product} onAddCart={addCart} onOpenDetail={setDetail} />)}
+            </div>
+          </section>
+        </main>
+
+        <Guide text={t.guide} />
+        <footer className="snapSection">© 2026 tof.aaaaa. all rights reserved.</footer>
+      </div>
 
       {detail && <ProductDetailModal product={detail} t={t} onClose={() => setDetail(null)} onAddCart={(product) => { addCart(product); setDetail(null); }} />}
-
-      <footer>© 2026 tof.aaaaa. all rights reserved.</footer>
     </>
   );
 }

@@ -1,6 +1,6 @@
 export default function Guide({ text }) {
   return (
-    <section id="guide" className="wrap guide">
+    <section id="guide" className="wrap guide snapSection">
       <h2>Shopping Guide</h2>
       <p>{text}</p>
       <div className="guideGrid">
