@@ -136,9 +136,15 @@ export default function Home() {
       <Header qty={qty} onCategoryChange={setCategory} onLanguageChange={setLang} />
 
       <div className="sectionControls" aria-label="Page navigation">
-        <button type="button" onClick={() => goToSection(currentSection - 1)} disabled={currentSection === 0}>UP</button>
-        <span>{currentSection + 1}/{sectionCount}</span>
-        <button type="button" onClick={() => goToSection(currentSection + 1)} disabled={currentSection === sectionCount - 1}>DOWN</button>
+        {Array.from({ length: sectionCount }).map((_, index) => (
+          <button
+            aria-label={`Go to section ${index + 1}`}
+            className={currentSection === index ? 'active' : ''}
+            key={index}
+            onClick={() => goToSection(index)}
+            type="button"
+          />
+        ))}
       </div>
 
       <div className="snapContainer">
