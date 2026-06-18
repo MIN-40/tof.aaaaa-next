@@ -7,6 +7,7 @@ import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import ProductDetailModal from '../components/ProductDetailModal';
 import { products } from '../data/products';
+import { site } from '../data/site';
 
 const text = {
   kr: {
@@ -33,8 +34,22 @@ export default function Home() {
     p.name.toLowerCase().includes(query.toLowerCase())
   );
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Store',
+    name: site.name,
+    alternateName: site.koreanName,
+    url: site.url,
+    image: `${site.url}${site.image}`,
+    description: site.description,
+    email: site.email,
+    brand: { '@type': 'Brand', name: site.name },
+    sameAs: [],
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Header qty={qty} onCategoryChange={setCategory} onLanguageChange={setLang} />
 
       <section className="hero"><h1>tof.aaaaa</h1><p>{t.hero}</p></section>

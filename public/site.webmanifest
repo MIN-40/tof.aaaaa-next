@@ -1,0 +1,16 @@
+{
+  "name": "tof.aaaaa",
+  "short_name": "tof.aaaaa",
+  "description": "tof.aaaaa 공식 온라인 스토어",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fbf7ef",
+  "theme_color": "#efe7d7",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

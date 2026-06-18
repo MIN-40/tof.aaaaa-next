@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import AddToCartButton from '../../../components/AddToCartButton';
 import DetailCartToggle from '../../../components/DetailCartToggle';
 import { categoryLabels, detailImages, getProduct, products, relatedProducts, shippingPolicy, stockLabel, won } from '../../../data/products';
+import { site } from '../../../data/site';
 
 export function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
@@ -13,11 +14,23 @@ export async function generateMetadata({ params }) {
   const product = getProduct(slug);
   if (!product) return {};
   return {
-    title: `${product.name} | tof.aaaaa`,
+    title: product.name,
     description: product.description,
+    alternates: {
+      canonical: `/products/${product.slug}/`,
+    },
     openGraph: {
+      type: 'website',
+      siteName: site.name,
       title: `${product.name} | tof.aaaaa`,
-      description: `tof.aaaaa ${product.cat} accessory`,
+      description: product.description,
+      url: `/products/${product.slug}/`,
+      images: product.img ? [{ url: product.img, width: 1200, height: 1600, alt: product.name }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} | tof.aaaaa`,
+      description: product.description,
       images: product.img ? [product.img] : [],
     },
   };
