@@ -26,33 +26,32 @@ export default function Home() {
   const [query, setQuery] = useState('');
   const { qty, addCart } = useCart();
   const [detail, setDetail] = useState(null);
-  const snapRef = useRef(null);
-  const activeSection = useRef(0);
+  const [currentSection, setCurrentSection] = useState(0);
+  const currentSectionRef = useRef(0);
   const wheelLock = useRef(false);
   const t = text[lang];
 
   useEffect(() => {
-    const container = snapRef.current;
-    if (!container) return undefined;
+    currentSectionRef.current = currentSection;
+  }, [currentSection]);
 
-    const getSections = () => [...container.querySelectorAll('.snapSection')];
-
+  useEffect(() => {
+    const sectionIds = ['top', 'shop', 'guide', 'footer'];
     const goToSection = (index) => {
-      const sections = getSections();
-      const next = Math.max(0, Math.min(sections.length - 1, index));
-      activeSection.current = next;
-      container.scrollTo({ top: next * container.clientHeight, behavior: 'smooth' });
+      const next = Math.max(0, Math.min(sectionIds.length - 1, index));
+      currentSectionRef.current = next;
+      setCurrentSection(next);
     };
 
     const onWheel = (event) => {
       if (window.innerWidth <= 900 || detail) return;
-      if (Math.abs(event.deltaY) < 8) return;
+      if (Math.abs(event.deltaY) < 6) return;
       event.preventDefault();
       event.stopPropagation();
       if (wheelLock.current) return;
       wheelLock.current = true;
-      goToSection(activeSection.current + (event.deltaY > 0 ? 1 : -1));
-      window.setTimeout(() => { wheelLock.current = false; }, 900);
+      goToSection(currentSectionRef.current + (event.deltaY > 0 ? 1 : -1));
+      window.setTimeout(() => { wheelLock.current = false; }, 820);
     };
 
     const onKeyDown = (event) => {
@@ -60,15 +59,15 @@ export default function Home() {
       if (!['ArrowDown', 'PageDown', 'Space', 'ArrowUp', 'PageUp'].includes(event.code)) return;
       event.preventDefault();
       const direction = ['ArrowUp', 'PageUp'].includes(event.code) ? -1 : 1;
-      goToSection(activeSection.current + direction);
+      goToSection(currentSectionRef.current + direction);
     };
 
     const onHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      const target = getSections().findIndex((section) => section.id === hash);
+      const target = sectionIds.indexOf(window.location.hash.replace('#', ''));
       if (target >= 0) goToSection(target);
     };
 
+    onHashChange();
     window.addEventListener('wheel', onWheel, { passive: false, capture: true });
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('hashchange', onHashChange);
@@ -103,32 +102,34 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Header qty={qty} onCategoryChange={setCategory} onLanguageChange={setLang} />
 
-      <div className="snapContainer" ref={snapRef}>
-        <section id="top" className="hero snapSection">
-          <div>
-            <h1>tof.aaaaa</h1>
-            <p>{t.hero}</p>
-          </div>
-          <div className="ticker"><div>NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA · NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA ·</div></div>
-        </section>
-
-        <main id="shop" className="wrap shop snapSection">
-          <aside className="side">
-            <h3>Category</h3>
-            {cats.map((cat) => <button className={category === cat ? 'active' : ''} key={cat} onClick={() => setCategory(cat)}>{cat}</button>)}
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" />
-          </aside>
-          <section className="products">
-            <h2>{category === 'all' ? 'Accessories' : category}</h2>
-            <p>{list.length} products</p>
-            <div className="grid">
-              {list.map((product) => <ProductCard key={product.name} product={product} onAddCart={addCart} onOpenDetail={setDetail} />)}
+      <div className="snapContainer">
+        <div className="fullpageTrack" style={{ transform: `translate3d(0, calc(-${currentSection} * (100vh - 105px)), 0)` }}>
+          <section id="top" className="hero snapSection">
+            <div>
+              <h1>tof.aaaaa</h1>
+              <p>{t.hero}</p>
             </div>
+            <div className="ticker"><div>NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA · NEW ACCESSORY DROP · STEEL CHAIN · TOF.AAAAA ·</div></div>
           </section>
-        </main>
 
-        <Guide text={t.guide} />
-        <footer className="snapSection">© 2026 tof.aaaaa. all rights reserved.</footer>
+          <main id="shop" className="wrap shop snapSection">
+            <aside className="side">
+              <h3>Category</h3>
+              {cats.map((cat) => <button className={category === cat ? 'active' : ''} key={cat} onClick={() => setCategory(cat)}>{cat}</button>)}
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search" />
+            </aside>
+            <section className="products">
+              <h2>{category === 'all' ? 'Accessories' : category}</h2>
+              <p>{list.length} products</p>
+              <div className="grid">
+                {list.map((product) => <ProductCard key={product.name} product={product} onAddCart={addCart} onOpenDetail={setDetail} />)}
+              </div>
+            </section>
+          </main>
+
+          <Guide text={t.guide} />
+          <footer id="footer" className="snapSection">© 2026 tof.aaaaa. all rights reserved.</footer>
+        </div>
       </div>
 
       {detail && <ProductDetailModal product={detail} t={t} onClose={() => setDetail(null)} onAddCart={(product) => { addCart(product); setDetail(null); }} />}
